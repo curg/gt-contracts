@@ -4,7 +4,7 @@
   "scripts": {
     "compile": "npx hardhat compile",
     "test": "npx hardhat test --typecheck",
-    "lint": "npx prettier --check '**/*' && npx eslint '**/*.{js,ts}'"
+    "lint": "npx prettier --check '**/*' && npx solhint 'contracts/**/*.sol' && npx eslint '**/*.{js,ts}'"
   },
   "repository": {
     "type": "git",
