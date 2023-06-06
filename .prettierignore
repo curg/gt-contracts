@@ -1,0 +1,13 @@
+.idea
+.vscode
+node_modules
+.DS_Store
+
+/artifacts
+/cache
+/typechain-types
+
+.eslintignore
+.gitignore
+.prettierignore
+LICENSE
