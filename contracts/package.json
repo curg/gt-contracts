@@ -1,0 +1,24 @@
+{
+  "name": "@curg/gt-contracts",
+  "version": "0.0.0",
+  "description": "Project Golden Teeth Smart Contracts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/curg/gt-contracts.git"
+  },
+  "keywords": [
+    "solidity",
+    "ethereum",
+    "smart",
+    "contracts"
+  ],
+  "author": "Project Golden Teeth",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/curg/gt-contracts/issues"
+  },
+  "homepage": "https://github.com/curg/gt-contracts#readme",
+  "peerDependencies": {
+    "@openzeppelin/contracts": "=4.9.0"
+  }
+}
