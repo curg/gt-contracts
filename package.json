@@ -2,7 +2,9 @@
   "version": "0.0.0",
   "description": "Project Golden Teeth Smart Contracts",
   "scripts": {
-    "test": "npx hardhat test --typecheck"
+    "compile": "npx hardhat compile",
+    "test": "npx hardhat test --typecheck",
+    "lint": "npx prettier --check '**/*' && npx eslint '**/*.{js,ts}'"
   },
   "repository": {
     "type": "git",
