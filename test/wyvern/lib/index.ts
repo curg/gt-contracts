@@ -1,5 +1,5 @@
 /* An order, convenience struct. */
-import { BigNumberish, BytesLike, ethers } from "ethers";
+import { BigNumber, BigNumberish, BytesLike, ethers } from "ethers";
 import { TypedDataField } from "@ethersproject/abstract-signer";
 
 export interface Order {
@@ -122,5 +122,38 @@ export function atomicMatchArgs(
     [call.howToCall, countercall.howToCall],
     metadata,
     ethers.utils.defaultAbiCoder.encode(["bytes", "bytes"], [encodeSignature(sig), encodeSignature(countersig)]),
+  ];
+}
+
+//Order memory order, Call memory call, Order memory counterorder, Call memory countercall, address matcher, uint value, uint fill
+//bytes memory extra,
+//         address[7] memory addresses,
+//         IAuthenticatedProxy.HowToCall[2] memory howToCalls,
+//         uint[6] memory uints,
+//         bytes memory data,
+//         bytes memory counterdata
+export function staticCallArgs(
+  order: Order,
+  call: Call,
+  counterorder: Order,
+  countercall: Call,
+  matcher: string,
+  value: BigNumberish,
+  fill: BigNumberish
+): readonly [
+  BytesLike,
+  [string, string, string, string, string, string, string],
+  [BigNumberish, BigNumberish],
+  [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish],
+  BytesLike,
+  BytesLike
+] {
+  return [
+    order.staticExtradata,
+    [order.registry, order.maker, call.target, counterorder.registry, counterorder.maker, countercall.target, matcher],
+    [call.howToCall, countercall.howToCall],
+    [value, order.maximumFill, order.listingTime, order.expirationTime, counterorder.listingTime, fill],
+    call.data,
+    countercall.data,
   ];
 }
