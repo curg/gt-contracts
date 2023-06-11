@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
+// solhint-disable
+
 /**
  * @title ArrayUtils
  * @author Wyvern Protocol Developers

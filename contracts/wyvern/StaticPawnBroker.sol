@@ -6,6 +6,8 @@ import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import { ArrayUtils } from "./lib/ArrayUtils.sol";
 import { IAuthenticatedProxy } from "./lib/IAuthenticatedProxy.sol";
 
+// solhint-disable reason-string
+
 contract StaticPawnBroker {
     struct ERC721PawnParams {
         address pawnbroker;
@@ -21,6 +23,7 @@ contract StaticPawnBroker {
         uint256 amount;
     }
 
+    // solhint-disable-next-line func-name-mixedcase
     function ERC721PawnForERC20(
         bytes memory extra,
         address[7] memory addresses,
@@ -43,6 +46,7 @@ contract StaticPawnBroker {
         return 1;
     }
 
+    // solhint-disable-next-line func-name-mixedcase
     function ERC20ForERC721Pawn(
         bytes memory extra,
         address[7] memory addresses,
