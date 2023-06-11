@@ -1,5 +1,5 @@
 /* An order, convenience struct. */
-import { BigNumber, BigNumberish, BytesLike, ethers } from "ethers";
+import { BigNumberish, BytesLike, ethers } from "ethers";
 import { TypedDataField } from "@ethersproject/abstract-signer";
 
 export interface Order {
