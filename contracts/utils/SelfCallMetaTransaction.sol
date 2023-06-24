@@ -17,7 +17,7 @@ contract SelfCallMetaTransaction is EIP712("SelfCallMetaTransaction", "0.1.0"), 
         bytes signature;
     }
 
-    bytes32 private constant _TYPEHASH = keccak256("SelfCallRequest(bytes data, uint256 deadline, uint256 salt)");
+    bytes32 private constant _TYPEHASH = keccak256("SelfCallRequest(bytes data,uint256 deadline,uint256 salt)");
 
     mapping(bytes32 => bool) private _invalid;
 
@@ -47,13 +47,13 @@ contract SelfCallMetaTransaction is EIP712("SelfCallMetaTransaction", "0.1.0"), 
             _hashTypedDataV4(keccak256(abi.encode(_TYPEHASH, dataHash, req.deadline, req.salt))),
             signature
         );
-        hash = keccak256(abi.encodePacked(signer, dataHash, req.deadline, req.salt));
+        hash = keccak256(abi.encode(signer, dataHash, req.deadline, req.salt));
     }
 
     function _execute(SelfCallRequest calldata req, bytes calldata signature) internal {
         (bytes32 hash, address signer) = getHashAndSigner(req, signature);
         require(!_invalid[hash], "SelfCallMetaTransaction: already executed");
-        require(req.deadline < block.timestamp, "SelfCallMetaTransaction: deadline exceeded");
+        require(block.timestamp < req.deadline, "SelfCallMetaTransaction: deadline exceeded");
 
         if (hash != bytes32(0)) {
             _invalid[hash] = true;
