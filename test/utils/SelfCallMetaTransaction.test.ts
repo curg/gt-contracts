@@ -3,6 +3,7 @@ import { ethers } from "hardhat";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { getDomain } from "../lib/eip712";
 import { selfCallRequestTypes } from "../lib/metatx";
+import { encodeError } from "../lib/abi";
 
 describe("SelfCallMetaTransaction", function () {
   async function fixture() {
@@ -83,6 +84,16 @@ describe("SelfCallMetaTransaction", function () {
         .withArgs(hash, true, ethers.utils.defaultAbiCoder.encode(["address"], [await alice.getAddress()]));
     });
 
+    it("should reject expired requests", async function () {
+      const { contract, alice, bob } = await loadFixture(fixture);
+      const req = { data: contract.interface.encodeFunctionData("msgSender"), deadline: 0, salt: 0 };
+      const signature = await alice._signTypedData(await getDomain(contract), selfCallRequestTypes, req);
+
+      await expect(contract.connect(bob).execute(req, signature)).to.be.revertedWith(
+        "SelfCallMetaTransaction: deadline exceeded"
+      );
+    });
+
     it("should reject double spend", async function () {
       const { contract, alice } = await loadFixture(fixture);
       const req = { data: contract.interface.encodeFunctionData("msgSender"), deadline: 1n << 63n, salt: 0 };
@@ -137,6 +148,31 @@ describe("SelfCallMetaTransaction", function () {
           { req, signature },
         ])
       ).to.be.revertedWith("SelfCallMetaTransaction: already executed");
+    });
+
+    it("should not be reverted even if one of the calls is reverted", async function () {
+      const { contract, alice } = await loadFixture(fixture);
+
+      const req = { data: contract.interface.encodeFunctionData("revertYay"), deadline: 1n << 63n, salt: 0 };
+      const signature = await alice._signTypedData(await getDomain(contract), selfCallRequestTypes, req);
+
+      const { hash } = await contract.getHashAndSigner(req, signature);
+
+      await expect(
+        contract.connect(alice).batchExecute([
+          { req, signature },
+          {
+            req: {
+              data: contract.interface.encodeFunctionData("revertYay"),
+              deadline: 1n << 63n,
+              salt: 0,
+            },
+            signature: "0x",
+          },
+        ])
+      )
+        .to.emit(contract, "Executed")
+        .withArgs(hash, false, encodeError("yay"));
     });
   });
 });

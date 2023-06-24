@@ -7,4 +7,8 @@ contract MockSelfCallMetaTransaction is SelfCallMetaTransaction {
     function msgSender() external view returns (address) {
         return _msgSender();
     }
+
+    function revertYay() external pure {
+        revert("yay");
+    }
 }
