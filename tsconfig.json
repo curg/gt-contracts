@@ -6,8 +6,9 @@
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "skipLibCheck": true,
-    "resolveJsonModule": true,
-    "typeRoots": ["./typechain-types", "./node_modules/@types"],
-    "types": ["mocha"]
+    "resolveJsonModule": true
+  },
+  "ts-node": {
+    "files": true
   }
 }
