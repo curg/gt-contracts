@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract InvestRelayer is IERC721Receiver, ERC721Burnable {
+contract InvestRelayer is IERC721Receiver, ERC721Burnable, Ownable {
     constructor() ERC721("Golden-Teeth", "GT") {}
 
     PawnContract[] public pawnContracts;
@@ -17,8 +18,12 @@ contract InvestRelayer is IERC721Receiver, ERC721Burnable {
         address pawnTokenAddress; // 담보 토큰 (ERC 721)
         uint256 pawnTokenId; //담보 토큰 id(ERC 721)
         address payTokenAddress; // 코인 종류(ERC 20)
-        uint256 deadLine; // 기한
+        uint256 deadline; // 기한
         uint256 debtAmount; // 상환 해야하는 금액
+    }
+
+    function safeMint(address to, uint256 tokenId) public onlyOwner {
+        _safeMint(to, tokenId);
     }
 
     function onERC721Received(
@@ -29,19 +34,21 @@ contract InvestRelayer is IERC721Receiver, ERC721Burnable {
     ) public override returns (bytes4) {
         address debtorAddress;
         address creditorAddress;
-        address pawnTokenAddress;
+        address pawnTokenAddress = msg.sender;
         uint256 pawnTokenId;
         address payTokenAddress;
-        uint256 deadLine;
+        uint256 deadline;
         uint256 debtAmount;
-        (debtorAddress, creditorAddress, pawnTokenAddress, pawnTokenId, payTokenAddress, deadLine, debtAmount) = abi
-            .decode(data, (address, address, address, uint256, address, uint256, uint256));
+        (debtorAddress, creditorAddress, pawnTokenId, payTokenAddress, deadline, debtAmount) = abi.decode(
+            data,
+            (address, address, uint256, address, uint256, uint256)
+        );
 
         PawnContract memory pawnContract = PawnContract(
             pawnTokenAddress,
             pawnTokenId,
             payTokenAddress,
-            deadLine,
+            deadline,
             debtAmount
         );
         _createPawnContract(debtorAddress, creditorAddress, pawnContract);
@@ -58,7 +65,7 @@ contract InvestRelayer is IERC721Receiver, ERC721Burnable {
     // 유저가 빚을 갚음
     function repay(uint256 pawnId) public {
         require(ownerOf(pawnId * 2) == msg.sender, "Not a debtor");
-        require(pawnContracts[pawnId].deadLine < block.timestamp, "debt expired");
+        require(pawnContracts[pawnId].deadline > block.timestamp, "debt expired");
         burn(pawnId * 2);
         IERC721 payToken = IERC721(pawnContracts[pawnId].payTokenAddress);
         IERC721 pawnToken = IERC721(pawnContracts[pawnId].pawnTokenAddress);
@@ -83,7 +90,7 @@ contract InvestRelayer is IERC721Receiver, ERC721Burnable {
 
     function collectAssure(uint256 pawnId) public {
         require(ownerOf(pawnId * 2 + 1) == msg.sender, "Not a creditor");
-        require(pawnContracts[pawnId].deadLine < block.timestamp, "debt not expired");
+        require(pawnContracts[pawnId].deadline < block.timestamp, "debt not expired");
         burn(pawnId * 2 + 1);
         IERC721 pawnToken = IERC721(pawnContracts[pawnId].pawnTokenAddress);
         pawnToken.transferFrom(address(this), msg.sender, pawnContracts[pawnId].pawnTokenId);

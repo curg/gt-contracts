@@ -1,7 +1,6 @@
 import { BigNumberish, BytesLike, ethers } from "ethers";
 
 export interface PawnContract {
-  id: BigNumberish; //계약 id
   pawnTokenAddress: string; //ERC721 address
   pawnTokenId: BigNumberish; //ERC721 id
   payTokenAddress: string; //ERC20 address
@@ -11,7 +10,6 @@ export interface PawnContract {
 
 export const PawnContractType = {
   PawnContract: [
-    { types: "uint256", name: "id" },
     { types: "address", name: "pawnTokenAddress" },
     { types: "uint256", name: "pawnTokenId" },
     { types: "address", name: "payTokenAddress" },
@@ -32,12 +30,26 @@ export function onReceivedArgs(
     from,
     tokenId,
     ethers.utils.defaultAbiCoder.encode(
-      [
-        "address",
-        "address",
-        "tuple(uint256 id, address pawnTokenAddress, uint256 pawnTokenId, address payTokenAddress, uint256 debtAmount, uint256 deadline)",
-      ],
+      ["address", "address", "address", "uint256", "address", "uint256", "uint256"],
       [from, bob, pawnContract]
+    ),
+  ];
+}
+
+export function safeTransferFromArgs(
+  from: string,
+  to: string,
+  bob: string,
+  tokenId: BigNumberish,
+  data: PawnContract
+): readonly [string, string, BigNumberish, BytesLike] {
+  return [
+    from,
+    to,
+    tokenId,
+    ethers.utils.defaultAbiCoder.encode(
+      ["address", "address", "uint256", "address", "uint256", "uint256"],
+      [from, bob, data.pawnTokenId, data.payTokenAddress, data.deadline, data.debtAmount]
     ),
   ];
 }
