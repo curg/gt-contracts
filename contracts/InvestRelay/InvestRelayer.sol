@@ -35,18 +35,17 @@ contract InvestRelayer is IERC721Receiver, ERC721Burnable, Ownable {
         address debtorAddress;
         address creditorAddress;
         address pawnTokenAddress = msg.sender;
-        uint256 pawnTokenId;
         address payTokenAddress;
         uint256 deadline;
         uint256 debtAmount;
-        (debtorAddress, creditorAddress, pawnTokenId, payTokenAddress, deadline, debtAmount) = abi.decode(
+        (debtorAddress, creditorAddress, payTokenAddress, deadline, debtAmount) = abi.decode(
             data,
-            (address, address, uint256, address, uint256, uint256)
+            (address, address, address, uint256, uint256)
         );
 
         PawnContract memory pawnContract = PawnContract(
             pawnTokenAddress,
-            pawnTokenId,
+            tokenId,
             payTokenAddress,
             deadline,
             debtAmount
