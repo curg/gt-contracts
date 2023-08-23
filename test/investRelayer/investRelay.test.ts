@@ -78,12 +78,5 @@ describe("Invest Relayer", () => {
       // expect(await relayer.connect(bob).collectAssure(0)).to.be.reverted;
       expect(await relayer.connect(bob).collectPay(0)).not.to.be.reverted;
     });
-
-    // it("create pawn", async () => {
-    //   const { alice, bob, relayer, pawnContract } = await loadFixture(fixture);
-    //   await expect(
-    //     relayer.onERC721Received(...onReceivedArgs(alice.address, alice.address, 1, pawnContract, bob.address))
-    //   ).not.to.reverted;
-    // });
   });
 });

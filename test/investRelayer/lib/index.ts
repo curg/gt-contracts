@@ -48,8 +48,8 @@ export function safeTransferFromArgs(
     to,
     tokenId,
     ethers.utils.defaultAbiCoder.encode(
-      ["address", "address", "address", "uint256", "uint256"],
-      [from, bob, data.payTokenAddress, data.deadline, data.debtAmount]
+      ["address", "address", "uint256", "uint256"],
+      [bob, data.payTokenAddress, data.debtAmount, data.deadline]
     ),
   ];
 }

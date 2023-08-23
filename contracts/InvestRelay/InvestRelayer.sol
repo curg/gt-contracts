@@ -11,6 +11,9 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract InvestRelayer is IERC721Receiver, ERC721Burnable, Ownable {
     constructor() ERC721("Golden-Teeth", "GT") {}
 
+    event ERC721Received(address token, address operator, address from, uint256 tokenId, bytes data);
+    event ERC1155Received(address token, address operator, address from, uint256 id, uint256 value, bytes data);
+
     PawnContract[] public pawnContracts;
 
     //    event PawnContractCreated(address debtor, address creditor, PawnContract pawnContract);
@@ -32,6 +35,36 @@ contract InvestRelayer is IERC721Receiver, ERC721Burnable, Ownable {
         uint256 tokenId,
         bytes memory data
     ) public override returns (bytes4) {
+        address debtorAddress = from;
+        address creditorAddress;
+        address pawnTokenAddress = msg.sender;
+        address payTokenAddress;
+        uint256 deadline;
+        uint256 debtAmount;
+        (creditorAddress, payTokenAddress, debtAmount, deadline) = abi.decode(
+            data,
+            (address, address, uint256, uint256)
+        );
+
+        PawnContract memory pawnContract = PawnContract(
+            pawnTokenAddress,
+            tokenId,
+            payTokenAddress,
+            deadline,
+            debtAmount
+        );
+        _createPawnContract(debtorAddress, creditorAddress, pawnContract);
+        emit ERC721Received(msg.sender, operator, from, tokenId, data);
+        return this.onERC721Received.selector;
+    }
+
+    function onERC1155Received(
+        address operator,
+        address from,
+        uint256 tokenId,
+        uint256 value,
+        bytes calldata data
+    ) external returns (bytes4) {
         address debtorAddress;
         address creditorAddress;
         address pawnTokenAddress = msg.sender;
@@ -51,7 +84,8 @@ contract InvestRelayer is IERC721Receiver, ERC721Burnable, Ownable {
             debtAmount
         );
         _createPawnContract(debtorAddress, creditorAddress, pawnContract);
-        return this.onERC721Received.selector;
+        emit ERC1155Received(msg.sender, operator, from, tokenId, value, data);
+        return msg.sig;
     }
 
     function _createPawnContract(address _debtor, address _creditor, PawnContract memory _pawnContract) private {
