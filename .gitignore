@@ -8,3 +8,5 @@ node_modules
 /typechain-types
 
 /contracts/package-lock.json
+
+.env
