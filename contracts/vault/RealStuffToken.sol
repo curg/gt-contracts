@@ -43,7 +43,7 @@ contract RealStuffToken is
         uint256 tokenId,
         uint256 batchSize
     ) internal override whenNotPaused {
-        require(isWhitelistedNow(to), "RealStuffToken: recipient not whitelisted");
+        //        require(isWhitelistedNow(to), "RealStuffToken: recipient not whitelisted");
         super._beforeTokenTransfer(from, to, tokenId, batchSize);
     }
 
